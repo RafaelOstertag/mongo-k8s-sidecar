@@ -1,4 +1,5 @@
 var Db = require('mongodb').Db;
+var MongoClient = require('mongodb').MongoClient;
 var MongoServer = require('mongodb').Server;
 var async = require('async');
 var config = require('./config');
@@ -16,26 +17,45 @@ var getDb = function(host, done) {
     }
   }
 
-  var mongoOptions = {};
+  var serverOptions = {};
+  var clientOptions = {};
   host = host || localhost;
 
   if (config.mongoSSLEnabled) {
-    mongoOptions = {
+    serverOptions = {
       ssl: config.mongoSSLEnabled,
       sslAllowInvalidCertificates: config.mongoSSLAllowInvalidCertificates,
       sslAllowInvalidHostnames: config.mongoSSLAllowInvalidHostnames
     }
   }
 
-  var mongoDb = new Db(config.database, new MongoServer(host, config.mongoPort, mongoOptions));
+  const server = host + (config.mongoPort ? ":" + config.mongoPort : "")
+  let url = ""
+  if (config.username) {
+    url = "mongodb://" + config.username + ":" + config.password + "@" + server
+  } else {
+    url = "mongodb://" + server
+  }
 
-  mongoDb.open(function (err, db) {
+  //var mongoDb = new Db(config.database, new MongoServer(host, config.mongoPort, mongoOptions));
+  new MongoClient(url)
+    .connect((err, client) => {
+        if (err) {
+            done(err)
+        }
+
+        const db = client.db(config.database)
+        done(null, db)
+    }
+    )
+
+  /* mongoDb.open(function (err, db) {
     if (err) {
       return done(err);
     }
 
     if(config.username) {
-        mongoDb.authenticate(config.username, config.password, function(err, result) {
+        mongoDb.admin().authenticate(config.username, config.password, function(err, result) {
             if (err) {
               return done(err);
             }
@@ -46,7 +66,7 @@ var getDb = function(host, done) {
       return done(null, db);
     }
 
-  });
+  }); */
 };
 
 var replSetGetConfig = function(db, done) {

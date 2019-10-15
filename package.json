@@ -4,8 +4,8 @@
   "description": "Kubernetes sidecar for mongo",
   "main": "src/index.js",
   "scripts": {
-    "start": "forever src/index.js",
-    "watch": "forever -w src/index.js"
+    "start": "env FOREVER_ROOT=/tmp forever src/index.js",
+    "watch": "env FOREVER_ROOT=/tmp forever -w src/index.js"
   },
   "repository": {
     "type": "git",
@@ -29,15 +29,15 @@
   "homepage": "https://github.com/cvallance/mongo-k8s-sidecar",
   "devDependencies": {
     "chai": "^2.3.0",
-    "mocha": "^2.2.4"
+    "mocha": "^6.2.1"
   },
   "dependencies": {
     "async": "^1.5.0",
-    "forever": "^0.14.1",
+    "forever": "^1.0.0",
     "ip": "^0.3.2",
     "moment": "^2.10.2",
-    "mongodb": "^2.0.28",
-    "node-kubernetes-client": "^0.2.2",
+    "mongodb": "^3.3.2",
+    "node-kubernetes-client": "^0.3.2",
     "pem": "^1.9.4"
   }
 }
